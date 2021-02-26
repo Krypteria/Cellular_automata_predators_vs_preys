@@ -21,8 +21,9 @@ PREDATOR = 0b1010
 PREY = 0b0010
 NOTHING = 0b0000
 
-TIMEPREDATOR = 4
-TIMEPREY = 18
+TIMEPREDATOR = 2.5
+TIMEPREY = 1
+TIMESIM = 0.2
 
 #MASCARAS
 TYPEMASK = 0b1000
@@ -30,65 +31,85 @@ EMPTYMASK = 0b0000
 
 FPS = 60
 
+
 #Vectores de posicion
 pos = 8
 Vf = [1,  1,  1, -1, -1, -1, 0 ,  0]
 Vc = [1,  0, -1,  1,  0, -1, 1 , -1]
 
-
+# ------------------------------------------------------------------------
+# General methods
+# ------------------------------------------------------------------------
 
 def getRectangle(x, y):
     return [(x * RW, y * RH), ((x + 1) * RW, y * RH), ((x + 1) * RW, (y + 1)* RH), (x * RW, (y + 1) * RH)]
 
-def predadorRules(screen, times, cells, x, y):
+def draw(screen, source, nextStep, colorA, colorB):
+    pygame.draw.polygon(screen, colorA, source, 0)
+    pygame.draw.polygon(screen, colorB, nextStep, 0)
+
+# ------------------------------------------------------------------------
+# Prey methods
+# ------------------------------------------------------------------------
+
+#TODO optimizar el calculo cuando todos los bloques estan ocupados por PREY y mirar por que no se pinta como deberia pintarse todo
+def preyRules(screen, times, cells, x, y):
+    movimiento, reproduccion= False, False
+    for k in range (0, pos):
+        newX = (x + Vf[k]) % NX
+        newY = (y + Vc[k]) % NY
+        if(cells[newX][newY] == NOTHING):
+            if(times[x][y] == 0): #se reproduce
+                cells[newX][newY], times[newX][newY] = PREY, TIMEPREY
+                times[x][y] = TIMEPREY
+                draw(screen, getRectangle(x, y), getRectangle(newX, newY), GREEN, GREEN)
+                reproduccion = True
+            else: #movimiento
+                cells[newX][newY], times[newX][newY] = PREY, times[x][y]
+                cells[x][y], times[x][y] = NOTHING, 0
+                draw(screen, getRectangle(x, y), getRectangle(newX, newY), BLACK, GREEN)
+                movimiento = True
+            break
+    if(not movimiento and not reproduccion):
+        pygame.draw.polygon(screen, GREEN, getRectangle(x, y), 0)
+
+def preyBehaviour(screen, times, cells, x, y):
+    preyRules(screen, times, cells, x, y)
+
+# ------------------------------------------------------------------------
+# Predator methods
+# ------------------------------------------------------------------------
+
+def predatorRules(screen, times, cells, x, y):
+    freeX, freeY = -1, -1
+    movimiento, reproduccion = False, False
+    for k in range (0, pos):
+        newX = (x + Vf[k]) % NX
+        newY = (y + Vc[k]) % NY
+        if(cells[newX][newY] == PREY): #si ataco a una presa me multiplico
+            cells[newX][newY], times[newX][newY]  = PREDATOR, TIMEPREDATOR 
+            draw(screen, getRectangle(x, y), getRectangle(newX, newY), RED, RED)
+            reproduccion = True 
+            break
+        elif(cells[newX][newY] == NOTHING):
+            freeX, freeY = newX, newY
+            movimiento = True
+
+    if(not reproduccion and movimiento): #si me muevo sin consumir
+        cells[freeX][freeY], times[freeX][freeY] = PREDATOR, times[x][y] #conservo el tiempo
+        cells[x][y], times[x][y] = NOTHING, 0
+        draw(screen, getRectangle(x, y), getRectangle(freeX, freeY), BLACK, RED)
+
+def predadorBehaviour(screen, times, cells, x, y):
     if(times[x][y] <= 0): #si ha muerto
         cells[x][y] = NOTHING
         times[x][y] = 0
-        rectangle = getRectangle(x, y)
-        pygame.draw.polygon(screen, BLACK, (rectangle), 0)
     else: #Movimiento y reproduccion de un depredador
-        freeX = -1
-        freeY = -1
-        for k in range (0, pos):
-            nX = x + Vf[k]
-            nY = y + Vc[k]
-            if(cells[nX][nY] == PREY): #si ataco a una presa me multiplico
-                cells[nX][nY] = PREDATOR
-                times[nX][nY] = TIMEPREDATOR
-                rectangle = getRectangle(nX, nY)
-                pygame.draw.polygon(screen, RED, (rectangle), 0)
-                freeX = -1 
-                freeY = -1
-                break
-            elif(cells[nX][nY] == NOTHING):
-                freeX = nX
-                freeY = nY
-        if(freeX != -1 and freeY != -1): #si me muevo sin consumir
-            cells[freeX][freeY] = PREDATOR
-            times[freeX][freeY] = times[x][y] #conservo el tiempo
-            rectangle = getRectangle(freeX, freeY)
-            pygame.draw.polygon(screen, RED, (rectangle), 0)
+        predatorRules(screen, times, cells, x, y)
 
-
-def initializeSimulation(screen, times, cells):
-    #Inicialización de la matriz
-    pool = np.array([0, 1, 2])
- 
-    for x in range (0, NX):
-        for y in range (0, NY):
-            rectangle = getRectangle(x, y)
-            choice = random.choice(pool)
-
-            if(choice == 1 and x == 2): #PREDATOR
-                cells[x][y] = PREDATOR
-                times[x][y] = TIMEPREDATOR
-                pygame.draw.polygon(screen, RED, (rectangle), 0)
-            elif(choice == 2): #PREY
-                cells[x][y] = PREY
-                times[x][y] = TIMEPREY
-                pygame.draw.polygon(screen, GREEN, (rectangle), 0)
-    print(cells)
-    pygame.display.flip()
+# ------------------------------------------------------------------------
+# Simulation management methods
+# ------------------------------------------------------------------------
 
 def runSimulation(screen, times, cells):
     running = True
@@ -97,21 +118,20 @@ def runSimulation(screen, times, cells):
             if event.type == pygame.QUIT:
                 running = False
 
-        #Turno
         print("turno")
-        time.sleep(0.3)
         screen.fill(BLACK)
-        times = times - 1 #resto 1 tiempo a todas las celulas
-        for x in range (0, NX -1):
-            for y in range (0, NY -1):
+        if(np.sum(cells) != 0):
+            times = times - 1 #resto 1 tiempo a todas las celulas
+        time.sleep(TIMESIM)
+    
+        for x in range (0, NX):
+            for y in range (0, NY):
                 #Comprobamos que tipo de celula es
                 if (TYPEMASK & cells[x][y]): #PREDATOR
-                    predadorRules(screen, times, cells, x, y)
-                elif(EMPTYMASK | cells[x][y]): #PREY 
-                    Rectangle = getRectangle(x, y)
-                    pygame.draw.polygon(screen, GREEN, (Rectangle), 0)
-
-                
+                    predadorBehaviour(screen, times, cells, x, y)
+                elif(not (TYPEMASK & cells[x][y]) and (EMPTYMASK | cells[x][y])): #PREY 
+                    preyBehaviour(screen, times, cells, x, y)
+        pygame.display.flip()  
                     #PREY -> si puede reproducirse hacemos una cosa, si no hacemos otra
                     #PREDATOR -> movimiento
                     #Nada -> siguiente
@@ -123,9 +143,23 @@ def runSimulation(screen, times, cells):
                 #Comprobamos si hay un cambio de edad       
                 #Actualizamos edad y tiempo de fase
                 #lo repintamos
-        pygame.display.flip()
 
+def initializeSimulation(screen, times, cells):
+    pool = np.array([0, 1, 2])
 
+    for x in range (0, NX):
+        for y in range (0, NY):
+            rectangle = getRectangle(x, y)
+            choice = random.choice(pool)
+
+            if(choice == 1 and x == 2): #PREDATOR
+                cells[x][y], times[x][y] = PREDATOR, TIMEPREDATOR
+                pygame.draw.polygon(screen, RED, (rectangle), 0)
+            elif(choice == 2): #PREY
+                cells[x][y], times[x][y] = PREY, TIMEPREY
+                pygame.draw.polygon(screen, GREEN, (rectangle), 0)
+
+    pygame.display.flip()
 
 def main():
     pygame.display.set_caption("Cellular automata")
