@@ -34,9 +34,9 @@ FPS = 60
 screen = pygame.display.set_mode([HEIGHT, WIDTH])
 
 #Vectores de posicion
-pos = 8
-Vf = [1,  1,  1, -1, -1, -1, 0 ,  0]
-Vc = [1,  0, -1,  1,  0, -1, 1 , -1]
+NEIGHBORS = 8
+NYCOORD = [1,  1,  1, -1, -1, -1, 0 ,  0]
+NXCOORD = [1,  0, -1,  1,  0, -1, 1 , -1]
 
 # ------------------------------------------------------------------------
 # General methods
@@ -63,20 +63,19 @@ def preyStep(times, cells, turno, newStep, y, x):
     else: #movimiento
         cells[newY][newX], times[newY][newX] = PREY, times[y][x]
         cells[y][x], times[y][x] = NOTHING, 0
-        draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, GREEN)
         turno[newY][newX] = 0
+        draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, GREEN)
 
 def preyRules(times, cells, turno, y, x):
     newStep = []
     movimiento, reproduccion= False, False
     if(turno[y][x]):
-        for k in range (0, pos):
-            newX = (x + Vf[k]) % NX
-            newY = (y + Vc[k]) % NY
+        for k in range (0, NEIGHBORS):
+            newX = (x + NXCOORD[k]) % NX
+            newY = (y + NYCOORD[k]) % NY
             if(cells[newY][newX] == NOTHING):
                 newStep.append([newY, newX])
 
-        #if the list is empty 
         if(not newStep):
             pygame.draw.polygon(screen, GREEN, getRectangle(y, x), 0)
         else:
@@ -89,30 +88,36 @@ def preyBehaviour(times, cells, turno, y, x):
 # Predator methods
 # ------------------------------------------------------------------------
 
+def predatorAttack(times, cells, turno, newY, newX, y, x):
+    cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR 
+    turno[y][x], turno[newY][newX] = 0, 0
+    draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)
+
+def predatorMovement(times, cells, turno, newStep, y, x):
+    newY, newX = random.choice(newStep)
+    cells[newY][newX], times[newY][newX] = PREDATOR, times[y][x] #conservo el tiempo
+    cells[y][x], times[y][x] = NOTHING, 0
+    turno[newY][newX] = 0
+    draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, RED)
+
 def predatorRules(times, cells, turno, y, x):
     newStep = []
-    reproduccion = False
+    attack = False
     if(turno[y][x]):
-        for k in range (0, pos):
-            newX = (x + Vf[k]) % NX
-            newY = (y + Vc[k]) % NY
+        for k in range (0, NEIGHBORS):
+            newX = (x + NXCOORD[k]) % NX
+            newY = (y + NYCOORD[k]) % NY
             if(cells[newY][newX] == PREY): #si ataco a una presa me multiplico
-                cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR 
-                turno[y][x], turno[newY][newX] = 0, 0
-                draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)
-                reproduccion = True 
+                predatorAttack(times, cells, turno, newY, newX, y, x)
+                attack = True              
                 break
             elif(cells[newY][newX] == NOTHING):
                 newStep.append([newY, newX])
         
-        if(not reproduccion and newStep): #si me muevo sin consumir
-            newY, newX = random.choice(newStep)
-            cells[newY][newX], times[newY][newX] = PREDATOR, times[y][x] #conservo el tiempo
-            cells[y][x], times[y][x] = NOTHING, 0
-            turno[newY][newX] = 0
-            draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, RED)
+        if(not attack and newStep): #si me muevo sin consumir
+            predatorMovement(times, cells, turno, newStep, y, x)
         else:
-             pygame.draw.polygon(screen, RED, getRectangle(y, x), 0)
+            pygame.draw.polygon(screen, RED, getRectangle(y, x), 0)
 
 
 def predadorBehaviour(times, cells, turno, y, x):
@@ -125,7 +130,7 @@ def predadorBehaviour(times, cells, turno, y, x):
 # ------------------------------------------------------------------------
 # Simulation management methods
 # ------------------------------------------------------------------------
-
+    
 def runSimulation(times, cells, turno):
     running = True
     paused = False
