@@ -3,8 +3,9 @@ import numpy as np
 import random
 import time
 
-HEIGHT = 900
-WIDTH = 600
+HEIGHT = 600
+WIDTH = 900
+
 GRAY = (125,125,125)
 BLACK = (0, 0, 0)
 GREEN = (48,138,52)
@@ -13,8 +14,8 @@ RED = (200,30,30)
 RW = 10
 RH = 10
 
-NY = 60
-NX = 60
+NY = (int) (HEIGHT / RH)
+NX = (int) (WIDTH / RW)
 
 #CODIFICACIONES 
 PREDATOR = 0b1010 
@@ -23,7 +24,7 @@ NOTHING = 0b0000
 
 TIMEPREDATOR = 2
 TIMEPREY = 1
-TIMESIM = 0.6
+TIMESIM = 0.1
 
 PRE_REPRO_CONDITION = 3
 PRE_REPRO_RATE = 2
@@ -34,7 +35,7 @@ EMPTYMASK = 0b0000
 
 FPS = 60
 
-screen = pygame.display.set_mode([HEIGHT, WIDTH])
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
 #Vectores de posicion
 NEIGHBORS = 8
@@ -56,65 +57,69 @@ def draw(source, nextStep, colorA, colorB):
 # Prey methods
 # ------------------------------------------------------------------------
 
-def preyStep(times, cells, turno, newStep, y, x):
+def preyReproduction(times, cells, action, newStep, y, x):
     newY, newX = random.choice(newStep)
-    if(times[y][x] == 0): #se reproduce
-        cells[newY][newX], times[newY][newX] = PREY, TIMEPREY
-        turno[y][x], turno[newY][newX] = 0, 0
-        times[y][x] = TIMEPREY
-        draw(getRectangle(y, x), getRectangle(newY, newX), GREEN, GREEN)
-    else: #movimiento
-        cells[newY][newX], times[newY][newX] = PREY, times[y][x]
-        cells[y][x], times[y][x] = NOTHING, 0
-        turno[newY][newX] = 0
-        draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, GREEN)
+    cells[newY][newX], times[newY][newX] = PREY, TIMEPREY
+    action[y][x], action[newY][newX] = 0, 0
+    times[y][x] = TIMEPREY
+    draw(getRectangle(y, x), getRectangle(newY, newX), GREEN, GREEN)
 
-def preyRules(times, cells, turno, y, x):
+def preyMovement(times, cells, action,  newStep, y, x):
+    newY, newX = random.choice(newStep)
+    cells[newY][newX], times[newY][newX] = PREY, times[y][x]
+    cells[y][x], times[y][x] = NOTHING, 0
+    action[newY][newX] = 0
+    draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, GREEN)
+
+def preyStep(times, cells, action, newStep, y, x):
+    if(times[y][x] <= 0): #se reproduce
+        preyReproduction(times, cells, action, newStep, y, x)
+    else: #movimiento
+        preyMovement(times, cells, action, newStep, y, x)
+
+def preyRules(times, cells, action, y, x):
     newStep = []
     movimiento, reproduccion= False, False
-    if(turno[y][x]):
+    if(action[y][x]):
         for k in range (0, NEIGHBORS):
             newX = (x + NXCOORD[k]) % NX
             newY = (y + NYCOORD[k]) % NY
             if(cells[newY][newX] == NOTHING):
                 newStep.append([newY, newX])
 
-        if(not newStep):
-            pygame.draw.polygon(screen, GREEN, getRectangle(y, x), 0)
+        if(newStep):
+            preyStep(times, cells, action, newStep, y, x)
         else:
-           preyStep(times, cells, turno, newStep, y, x)
+           pygame.draw.polygon(screen, GREEN, getRectangle(y, x), 0)
 
-def preyBehaviour(times, cells, turno, y, x):
-    preyRules(times, cells, turno, y, x)
+def preyBehaviour(times, cells, action, y, x):
+    preyRules(times, cells, action, y, x)
 
 # ------------------------------------------------------------------------
 # Predator methods
 # ------------------------------------------------------------------------
 
-def predatorReproduction(times, cells, turno, preyCells, y, x):
+def predatorReproduction(times, cells, action, preyCells, y, x):
+    k = 1
     if(len(preyCells) >= PRE_REPRO_CONDITION):
-        for i in range(0, PRE_REPRO_RATE):
-            newY, newX = random.choice(preyCells)
-            cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR
-            turno[y][x], turno[newY][newX] = 0, 0
-            draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)  
-    else:
+        k = PRE_REPRO_RATE
+    for i in range(0, k):
         newY, newX = random.choice(preyCells)
-        cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR 
-        turno[y][x], turno[newY][newX] = 0, 0
-        draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)
+        cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR
+        action[y][x], action[newY][newX] = 0, 0
+        draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)  
 
-def predatorMovement(times, cells, turno, newStep, y, x):
+def predatorMovement(times, cells, action, newStep, y, x):
     newY, newX = random.choice(newStep)
     cells[newY][newX], times[newY][newX] = PREDATOR, times[y][x] #conservo el tiempo
     cells[y][x], times[y][x] = NOTHING, 0
-    turno[newY][newX] = 0
+    action[newY][newX] = 0
     draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, RED)
 
-def predatorRules(times, cells, turno, y, x):
+def predatorRules(times, cells, action, y, x):
     newStep = []
     preyCells = []
-    if(turno[y][x]):
+    if(action[y][x]):
         for k in range (0, NEIGHBORS):
             newX = (x + NXCOORD[k]) % NX
             newY = (y + NYCOORD[k]) % NY
@@ -124,25 +129,25 @@ def predatorRules(times, cells, turno, y, x):
                 newStep.append([newY, newX])
         
         if(preyCells):
-            predatorReproduction(times, cells, turno, preyCells, y, x)
-        elif(not preyCells and newStep): #si me muevo sin consumir
-            predatorMovement(times, cells, turno, newStep, y, x)
+            predatorReproduction(times, cells, action, preyCells, y, x)
+        elif(newStep): #si me muevo sin consumir
+            predatorMovement(times, cells, action, newStep, y, x)
         else:
             pygame.draw.polygon(screen, RED, getRectangle(y, x), 0)
 
 
-def predadorBehaviour(times, cells, turno, y, x):
+def predadorBehaviour(times, cells, action, y, x):
     if(times[y][x] <= 0): #si ha muerto
         cells[y][x] = NOTHING
         times[y][x] = 0
     else: #Movimiento y reproduccion de un depredador
-        predatorRules(times, cells, turno, y, x)
+        predatorRules(times, cells, action, y, x)
 
 # ------------------------------------------------------------------------
 # Simulation management methods
 # ------------------------------------------------------------------------
     
-def runSimulation(times, cells, turno):
+def runSimulation(times, cells, action):
     running = True
     paused = False
     while(running):
@@ -153,36 +158,20 @@ def runSimulation(times, cells, turno):
                 paused = not paused
         
         if(not paused):
-            print("turno")
             screen.fill(BLACK)
-            time.sleep(TIMESIM)
-        
+            time.sleep(TIMESIM)        
             for y in range (0, NY):
                 for x in range (0, NX):
                     if (TYPEMASK & cells[y][x]): #PREDATOR
-                        predadorBehaviour(times, cells, turno, y, x)
+                        predadorBehaviour(times, cells, action, y, x)
                     elif((not (TYPEMASK & cells[y][x])) and (EMPTYMASK | cells[y][x] > 0)): #PREY 
-                        preyBehaviour(times, cells, turno, y, x)
+                        preyBehaviour(times, cells, action, y, x)
 
             pygame.display.flip()
 
             if(np.sum(cells) != 0):
                 times = times - 1 #resto 1 tiempo a todas las celulas
-                turno = np.ones([NY, NX], dtype="int")
-           
-
-                        #PREY -> si puede reproducirse hacemos una cosa, si no hacemos otra
-                        #PREDATOR -> movimiento
-                        #Nada -> siguiente
-
-                        #El prey buscará una casilla vacia, el PREDATOR una que tenga un PREY o esté vacia
-
-                    #Obtenemos información de los vecinos
-                    #Realizamos movimiento / muerte / Reproducción (Rules)
-                    #Comprobamos si hay un cambio de edad       
-                    #Actualizamos edad y tiempo de fase
-                    #lo repintamos
-                    #TODO HACER MAS ALEATORIA LA ELECCION DE NUEVA CELDA
+                action = np.ones([NY, NX], dtype="int")
 
 def initializeSimulation(times, cells):
     pool = np.array([0, 1, 2])
@@ -211,10 +200,10 @@ def main():
 
     cells = np.zeros([NY, NX], dtype="int")
     times = np.zeros([NY, NX], dtype="int")
-    turno = np.ones([NY, NX], dtype="int")
+    action = np.ones([NY, NX], dtype="int")
     
     initializeSimulation(times, cells)
-    runSimulation(times, cells, turno)
+    runSimulation(times, cells, action)
 
                 
 if __name__ == "__main__":
