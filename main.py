@@ -23,7 +23,10 @@ NOTHING = 0b0000
 
 TIMEPREDATOR = 2
 TIMEPREY = 1
-TIMESIM = 2
+TIMESIM = 0.6
+
+PRE_REPRO_CONDITION = 3
+PRE_REPRO_RATE = 2
 
 #MASCARAS
 TYPEMASK = 0b1000
@@ -88,10 +91,18 @@ def preyBehaviour(times, cells, turno, y, x):
 # Predator methods
 # ------------------------------------------------------------------------
 
-def predatorAttack(times, cells, turno, newY, newX, y, x):
-    cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR 
-    turno[y][x], turno[newY][newX] = 0, 0
-    draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)
+def predatorReproduction(times, cells, turno, preyCells, y, x):
+    if(len(preyCells) >= PRE_REPRO_CONDITION):
+        for i in range(0, PRE_REPRO_RATE):
+            newY, newX = random.choice(preyCells)
+            cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR
+            turno[y][x], turno[newY][newX] = 0, 0
+            draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)  
+    else:
+        newY, newX = random.choice(preyCells)
+        cells[newY][newX], times[newY][newX]  = PREDATOR, TIMEPREDATOR 
+        turno[y][x], turno[newY][newX] = 0, 0
+        draw(getRectangle(y, x), getRectangle(newY, newX), RED, RED)
 
 def predatorMovement(times, cells, turno, newStep, y, x):
     newY, newX = random.choice(newStep)
@@ -102,19 +113,19 @@ def predatorMovement(times, cells, turno, newStep, y, x):
 
 def predatorRules(times, cells, turno, y, x):
     newStep = []
-    attack = False
+    preyCells = []
     if(turno[y][x]):
         for k in range (0, NEIGHBORS):
             newX = (x + NXCOORD[k]) % NX
             newY = (y + NYCOORD[k]) % NY
             if(cells[newY][newX] == PREY): #si ataco a una presa me multiplico
-                predatorAttack(times, cells, turno, newY, newX, y, x)
-                attack = True              
-                break
+                preyCells.append([newY, newX])
             elif(cells[newY][newX] == NOTHING):
                 newStep.append([newY, newX])
         
-        if(not attack and newStep): #si me muevo sin consumir
+        if(preyCells):
+            predatorReproduction(times, cells, turno, preyCells, y, x)
+        elif(not preyCells and newStep): #si me muevo sin consumir
             predatorMovement(times, cells, turno, newStep, y, x)
         else:
             pygame.draw.polygon(screen, RED, getRectangle(y, x), 0)
@@ -148,7 +159,6 @@ def runSimulation(times, cells, turno):
         
             for y in range (0, NY):
                 for x in range (0, NX):
-                    #Comprobamos que tipo de celula es
                     if (TYPEMASK & cells[y][x]): #PREDATOR
                         predadorBehaviour(times, cells, turno, y, x)
                     elif((not (TYPEMASK & cells[y][x])) and (EMPTYMASK | cells[y][x] > 0)): #PREY 
