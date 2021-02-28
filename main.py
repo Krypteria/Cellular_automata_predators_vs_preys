@@ -22,12 +22,18 @@ PREDATOR = 0b1010
 PREY = 0b0010
 NOTHING = 0b0000
 
-TIMEPREDATOR = 2
-TIMEPREY = 1
+TIMEPREDATOR = 7
+TIMEPREY = 9
 TIMESIM = 0.1
 
 PRE_REPRO_CONDITION = 3
 PRE_REPRO_RATE = 2
+
+PREY_VALUE = 27
+PREDATOR_VALUE = 2
+
+PREY_PERCENTAGE = PREY_VALUE / 100
+PREDATOR_PERCENTAGE = PREDATOR_VALUE / 100
 
 #MASCARAS
 TYPEMASK = 0b1000
@@ -175,17 +181,22 @@ def runSimulation(times, cells, action):
 
 def initializeSimulation(times, cells):
     pool = np.array([0, 1, 2])
-
-    for y in range (0, NY):
-        for x in range (0, NX):
-            rectangle = getRectangle(y, x)
-            choice = random.choice(pool)
-            if(choice == 1): #PREDATOR #TODO GENERAR UN MENOR PORCENTAJE DE ELLOS
-                cells[y][x], times[y][x] = PREDATOR, TIMEPREDATOR
-                pygame.draw.polygon(screen, RED, (rectangle), 0)
-            elif(choice == 2): #PREY
-                cells[y][x], times[y][x] = PREY, TIMEPREY
-                pygame.draw.polygon(screen, GREEN, (rectangle), 0)
+    preyCells = (int) (NX * NY * PREY_PERCENTAGE)
+    predatorCells = (int) (NX * NY * PREDATOR_PERCENTAGE)
+    print(preyCells, " ", predatorCells)
+    for i in range(0, preyCells + predatorCells):
+        y = np.random.randint(1, NY)
+        x = np.random.randint(1, NX)
+        choice = random.choice(pool)
+        rectangle = getRectangle(y, x)
+        if(choice == 1 and predatorCells): #PREDATOR #TODO GENERAR UN MENOR PORCENTAJE DE ELLOS
+            cells[y][x], times[y][x] = PREDATOR, TIMEPREDATOR
+            pygame.draw.polygon(screen, RED, rectangle, 0)
+            predatorCells -= 1
+        elif(choice == 2 and preyCells): #PREY
+            cells[y][x], times[y][x] = PREY, TIMEPREY
+            pygame.draw.polygon(screen, GREEN, rectangle, 0)
+            preyCells -= 1
 
     #cells[3][3], times[3][3] = PREDATOR, TIMEPREDATOR
     #pygame.draw.polygon(screen, RED, (getRectangle(3, 3)), 0)
