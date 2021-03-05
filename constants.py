@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 import random
+from itertools import combinations
 import time
 pygame.font.init()
 
@@ -38,20 +39,13 @@ GREEN_O = (12,50,14)
 
 # Encoding
 # ------------------------------------------------------------------------
-Y_PREDATOR = 0b1001
-A_PREDATOR = 0b1010
+PREDATOR = "predator"
+PREY = "prey"
+NONE = "none"
 
-Y_PREY = 0b0001
-A_PREY = 0b0010
-
-NOTHING = 0b0000
-
-# Masks
-# ------------------------------------------------------------------------
-TYPEMASK = 0b1000
-EMPTYMASK = 0b0000
-YOUNGMASK = 0b0001
-ADULTMASK = 0b0010
+YOUNG = "young"
+ADULT = "adult"
+OLD = "old"
 
 # ------------------------------------------------------------------------
 # Cells generation and control
@@ -59,6 +53,10 @@ ADULTMASK = 0b0010
 
 # Generation
 # ------------------------------------------------------------------------
+
+PREY_VALUE = 27
+PREDATOR_VALUE = 1
+
 PREY_PERCENTAGE = PREY_VALUE / 100
 PREDATOR_PERCENTAGE = PREDATOR_VALUE / 100
 PREYCELLS = (int) (NX * NY * PREY_PERCENTAGE)
@@ -67,14 +65,11 @@ PREDATORCELLS = (int) (NX * NY * PREDATOR_PERCENTAGE)
 # Reproduction and growth values (this will be moved into another .py in the future when i implement the GUI)
 # ------------------------------------------------------------------------
 TIMEPREDATOR = 7
-TIMEY_PREY = 9
+TIMEPREY = 9
 TIMESIM = 0.3
 
 PRE_REPRO_CONDITION = 3
 PRE_REPRO_RATE = 2
-
-PREY_VALUE = 27
-PREDATOR_VALUE = 1
 
 PREYGROWTHRATIO = 4
 PREDATORGROWTHRATIO = 3
