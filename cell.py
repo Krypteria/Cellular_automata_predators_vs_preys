@@ -1,6 +1,3 @@
-
-
-
 class cell(object):
     def __init__(self, cellType, cellStatus, timeToRepro):
         self._cellType = cellType

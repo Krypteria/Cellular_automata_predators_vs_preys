@@ -1,4 +1,3 @@
-#from constants import *
 from prey import *
 from predator import *
 from empyCell import *
@@ -8,7 +7,7 @@ from predatorBehaviour import *
 # ------------------------------------------------------------------------
 # Simulation management methods
 # ------------------------------------------------------------------------
-def runSimulation(times, cells, action):
+def runSimulation(cells, action):
     running = True
     paused = False
 
@@ -28,9 +27,9 @@ def runSimulation(times, cells, action):
             for y in range (0, NY):
                 for x in range (0, NX):
                     if (cells[y][x].getCellType() == PREDATOR): #PREDATOR
-                        predatorsAI.behaviour(times, cells, action, y, x) 
+                        predatorsAI.behaviour(cells, action, y, x) 
                     elif(cells[y][x].getCellType() == PREY):  #Y_PREY 
-                        preysAI.behaviour(times, cells, action, y, x)
+                        preysAI.behaviour(cells, action, y, x)
                     
             pygame.display.flip()   
             """for y in range (0, NY):
@@ -45,7 +44,7 @@ def runSimulation(times, cells, action):
 
             action = np.ones([NY, NX], dtype="int")
 
-def initializeSimulation(times, cells):
+def initializeSimulation(cells):
     #TODO: generar elmentos totalmente diferentes, hay veces que se pisan unos a otros
     preyCount, predatorCount = PREYCELLS, PREDATORCELLS
     for i in range(0, PREYCELLS + PREDATORCELLS):
@@ -73,11 +72,10 @@ def main():
     row = [emptyCell() for i in range(NX)]
     cells = [list(row) for i in range(NY)]
 
-    times = np.zeros([NY, NX], dtype="int")
-    action = np.ones([NY, NX], dtype="int") #tengo que ver si cambiar esto o dejarlo así (habiendo pasado a OO no tiene mucho sentido)
+    action = np.ones([NY, NX], dtype="int")
     
-    initializeSimulation(times, cells)
-    runSimulation(times, cells, action)
+    initializeSimulation(cells)
+    runSimulation(cells, action)
 
                 
 if __name__ == "__main__":
