@@ -1,3 +1,5 @@
+from constants import *
+
 class cell(object):
     def __init__(self, cellType, cellStatus, timeToRepro, timeAlive):
         self._cellType = cellType
@@ -29,3 +31,15 @@ class cell(object):
 
     def updateTimeToRepro(self, newValue):
         self._timeToRepro = newValue
+
+class prey(cell):
+    def __init__(self, cellStatus=YOUNG, timeToRepro=TIMEPREY, timeAlive=0): #AÑADIR TIMEALIVE CUANDO LO META
+        cell.__init__(self, PREY, cellStatus, timeToRepro, timeAlive)
+        
+class predator(cell):
+    def __init__(self, cellStatus=YOUNG, timeToRepro=TIMEPREDATOR, timeAlive=0):
+        cell.__init__(self, PREDATOR, cellStatus, timeToRepro, timeAlive)
+
+class emptyCell(cell):
+    def __init__(self):
+        cell.__init__(self, NONE, NONE, 0, 0)
