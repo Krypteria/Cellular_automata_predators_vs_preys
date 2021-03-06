@@ -31,26 +31,26 @@ class preyBehaviour(object):
                 move = True
                 
             if(move):
-                cells[newY][newX].updateTimeToRepro()
+                cells[newY][newX].updateTimes()
             else:
-                cells[y][x].updateTimeToRepro()
+                cells[y][x].updateTimes()
         else:
-            cells[y][x].updateTimeToRepro()
+            cells[y][x].updateTimes()
             pygame.draw.polygon(screen, GREEN_A, getRectangle(y, x), 0)
 
     def __youngBehaviour(self, cells, action, y, x):
         newStep = self.__newStepSearch(cells, y, x)
         if(newStep):
             newY, newX = self.__movement(cells, action, newStep, YOUNG, y, x)
-            cells[newY][newX].updateTimeToRepro()
+            cells[newY][newX].updateTimes()
         else:
-            cells[y][x].updateTimeToRepro()
+            cells[y][x].updateTimes()
             pygame.draw.polygon(screen, GREEN_Y, getRectangle(y, x), 0)
 
     # ------------------------------------------------------------------------
 
     def __growth(self, cells, y, x):
-        if((cells[y][x].getCellStatus() == YOUNG) and cells[y][x].getTimeToReproduction() < PREYGROWTHRATIO): #CAMBIAR CUANDO TIMEALIVE
+        if((cells[y][x].getCellStatus() == YOUNG) and cells[y][x].getTimeAlive() >= YOUNG_PREY_LIMIT):
             cells[y][x].setCellStatus(ADULT)
             pygame.draw.polygon(screen, GREEN_A, getRectangle(y, x), 0)
 
@@ -67,7 +67,7 @@ class preyBehaviour(object):
     def __movement(self, cells, action, newStep, preyStatus, y, x):
         newY, newX = random.choice(newStep)
 
-        cells[newY][newX] = prey(preyStatus, cells[y][x].getTimeToReproduction()) 
+        cells[newY][newX] = prey(preyStatus, cells[y][x].getTimeToReproduction(), cells[y][x].getTimeAlive()) 
         cells[y][x] = emptyCell()
         action[newY][newX] = 0
 

@@ -11,7 +11,7 @@ class predatorBehaviour(object):
     def behaviour(self, cells, action, y, x):
         if(action[y][x]):
             self.__growth(cells, y, x)
-            if(cells[y][x].getTimeToReproduction() == 0): #CAMBIAR CUANDO TIMEALIVE
+            if(cells[y][x].getTimeAlive() >= DIE_PREDATOR_LIMIT):
                 cells[y][x] = emptyCell()
             elif(cells[y][x].getCellStatus() == YOUNG):
                 self.__youngBehaviour(cells, action, y, x)
@@ -25,14 +25,14 @@ class predatorBehaviour(object):
         preyCells = self.__foodSearch(cells, y, x)
         if(preyCells):
             self.__reproduction(cells, action, preyCells, y, x)
-            cells[y][x].updateTimeToRepro()
+            cells[y][x].updateTimes()
         else:
             newStep = self.__newStepSearch(cells, y, x)
             if(newStep):
                 newY, newX = self.__movement(cells, action, newStep, ADULT, y, x)
-                cells[newY][newX].updateTimeToRepro()
+                cells[newY][newX].updateTimes()
             else:
-                cells[y][x].updateTimeToRepro()
+                cells[y][x].updateTimes()
                 pygame.draw.polygon(screen, RED_A, getRectangle(y, x), 0)
 
 
@@ -40,14 +40,15 @@ class predatorBehaviour(object):
         newStep = self.__newStepSearch(cells, y, x)
         if(newStep):
             newY, newX = self.__movement(cells, action, newStep, YOUNG, y, x)
-            cells[newY][newX].updateTimeToRepro() 
+            cells[newY][newX].updateTimes()
         else:
+            cells[y][x].updateTimes()
             pygame.draw.polygon(screen, RED_Y, getRectangle(y, x), 0)
 
     # ------------------------------------------------------------------------
 
     def __growth(self, cells, y, x): 
-        if((cells[y][x].getCellStatus() == YOUNG) and cells[y][x].getTimeToReproduction() < PREDATORGROWTHRATIO): #CAMBIAR CUANDO TIMEALIVE
+        if((cells[y][x].getCellStatus() == YOUNG) and cells[y][x].getTimeAlive() >= YOUNG_PREDATOR_LIMIT):
             cells[y][x].setCellStatus(ADULT)
             pygame.draw.polygon(screen, RED_A, getRectangle(y, x), 0)
 
@@ -67,9 +68,10 @@ class predatorBehaviour(object):
 
     def __movement(self, cells, action, newStep, predatorStatus, y, x):
         newY, newX = random.choice(newStep)
-        cells[newY][newX] = predator(predatorStatus, cells[y][x].getTimeToReproduction())
+        cells[newY][newX] = predator(predatorStatus, cells[y][x].getTimeToReproduction(), cells[y][x].getTimeAlive())
         cells[y][x] = emptyCell()
         action[newY][newX] = 0
+
         if(predatorStatus == YOUNG):
             draw(getRectangle(y, x), getRectangle(newY, newX), BLACK, RED_Y)
         elif(predatorStatus == ADULT):

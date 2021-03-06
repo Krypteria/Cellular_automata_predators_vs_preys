@@ -53,7 +53,6 @@ OLD = "old"
 
 # Generation
 # ------------------------------------------------------------------------
-
 PREY_VALUE = 27
 PREDATOR_VALUE = 1
 
@@ -64,12 +63,20 @@ PREDATORCELLS = (int) (NX * NY * PREDATOR_PERCENTAGE)
 
 # Reproduction and growth values (this will be moved into another .py in the future when i implement the GUI)
 # ------------------------------------------------------------------------
+TIMESIM = 0.3
+
+#Reproduction
 TIMEPREDATOR = 7
 TIMEPREY = 9
-TIMESIM = 0.3
 
 PRE_REPRO_CONDITION = 3
 PRE_REPRO_RATE = 2
+
+#Growth
+YOUNG_PREY_LIMIT = 4
+YOUNG_PREDATOR_LIMIT = 3
+DIE_PREY_LIMIT = 20
+DIE_PREDATOR_LIMIT = 7
 
 PREYGROWTHRATIO = 4
 PREDATORGROWTHRATIO = 3

@@ -1,8 +1,8 @@
 class cell(object):
-    def __init__(self, cellType, cellStatus, timeToRepro):
+    def __init__(self, cellType, cellStatus, timeToRepro, timeAlive):
         self._cellType = cellType
         self._cellStatus = cellStatus
-        self._timeAlive = 0
+        self._timeAlive = timeAlive
         self._timeToRepro = timeToRepro
     
     def getCellType(self):
@@ -23,8 +23,9 @@ class cell(object):
     def setCellStatus(self, newStatus):
         self._cellStatus = newStatus
 
-    def updateTimeAlive(self, time=1):
-        self._timeAlive += time
+    def updateTimes(self):
+        self._timeToRepro -= 1
+        self._timeAlive +=1
 
-    def updateTimeToRepro(self,time=-1):
-        self._timeToRepro += time
+    def updateTimeToRepro(self, newValue):
+        self._timeToRepro = newValue
