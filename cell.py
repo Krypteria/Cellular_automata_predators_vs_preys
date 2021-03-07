@@ -26,14 +26,15 @@ class cell(object):
         self._cellStatus = newStatus
 
     def updateTimes(self):
-        self._timeToRepro -= 1
+        if(self._cellStatus == ADULT):
+            self._timeToRepro -= 1
         self._timeAlive +=1
 
     def updateTimeToRepro(self, newValue):
         self._timeToRepro = newValue
 
 class prey(cell):
-    def __init__(self, cellStatus=YOUNG, timeToRepro=TIMEPREY, timeAlive=0): #AÑADIR TIMEALIVE CUANDO LO META
+    def __init__(self, cellStatus=YOUNG, timeToRepro=TIMEPREY, timeAlive=0): 
         cell.__init__(self, PREY, cellStatus, timeToRepro, timeAlive)
         
 class predator(cell):

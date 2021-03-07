@@ -11,13 +11,26 @@ class preyBehaviour(object):
     def behaviour(self, cells, action, y, x):
         if(action[y][x]): 
             self.__growth(cells, y, x)
-            if(cells[y][x].getCellStatus() == YOUNG):
-                self.__youngBehaviour(cells, action, y, x)
-            elif(cells[y][x].getCellStatus() == ADULT):
-                self.__adultBehaviour(cells, action, y, x)
+            cellStatus = cells[y][x].getCellStatus()
 
-    # Private methods
+            if(cellStatus == YOUNG):
+                self.__youngBehaviour(cells, action, y, x)
+            elif(cellStatus == ADULT):
+                self.__adultBehaviour(cells, action, y, x)
+            elif(cellStatus == OLD):
+                self.__oldBehaviour(cells, action, y, x)
+
+     # Specific behaviour
     # ------------------------------------------------------------------------ 
+
+    def __oldBehaviour(self, cells, action, y, x):
+        newStep = self.__newStepSearch(cells, y, x)
+        if(newStep and random.choice([1,0])):
+            newY, newX = self.__movement(cells, action, newStep, OLD, y, x)
+            cells[newY][newX].updateTimes()
+        else:
+            cells[y][x].updateTimes()
+            pygame.draw.polygon(SCREEN, GREEN_OLD, getRectangle(y, x), 0)
 
     def __adultBehaviour(self, cells, action, y, x):
         newStep = self.__newStepSearch(cells, y, x)
@@ -41,12 +54,19 @@ class preyBehaviour(object):
             cells[y][x].updateTimes()
             pygame.draw.polygon(SCREEN, GREEN_YOUNG, getRectangle(y, x), 0)
 
+    # General actions
     # ------------------------------------------------------------------------
 
     def __growth(self, cells, y, x):
-        if((cells[y][x].getCellStatus() == YOUNG) and cells[y][x].getTimeAlive() >= YOUNG_PREY_LIMIT):
+        cellStatus, cellTime = cells[y][x].getCellStatus(), cells[y][x].getTimeAlive()
+        if(cellStatus == YOUNG and cellTime == YOUNG_PREY_LIMIT):
             cells[y][x].setCellStatus(ADULT)
             pygame.draw.polygon(SCREEN, GREEN_ADULT, getRectangle(y, x), 0)
+        elif(cellStatus == ADULT and cellTime == ADULT_PREY_LIMIT):
+            cells[y][x].setCellStatus(OLD)
+            pygame.draw.polygon(SCREEN, GREEN_OLD, getRectangle(y, x), 0) #cambiar
+        elif(cellStatus == OLD and cellTime == DIE_PREY_LIMIT):
+            cells[y][x] = emptyCell()
 
     def __reproduction(self, cells, action, newStep, y, x):
         newY, newX = random.choice(newStep)
@@ -69,6 +89,8 @@ class preyBehaviour(object):
             pygame.draw.polygon(SCREEN, GREEN_YOUNG, getRectangle(newY, newX), 0)
         elif(preyStatus == ADULT):
             pygame.draw.polygon(SCREEN, GREEN_ADULT, getRectangle(newY, newX), 0)
+        elif(preyStatus == OLD):
+            pygame.draw.polygon(SCREEN, GREEN_OLD, getRectangle(newY, newX), 0) #CAMBIAR
         
         return newY, newX
 
