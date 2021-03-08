@@ -2,6 +2,35 @@ from constants import *
 from generalMethods import *
 from cell import prey, emptyCell
 
+# -----------------------------------------------------------------------------------------------------------#
+# Rules                                                                                                      #
+# -----------------------------------------------------------------------------------------------------------#
+
+# Growth                                                                                                         
+# -----------------------------------------------------------------------------------------------------------#   
+# - If the time alive of a young prey is equal to YOUNG_PREY_LIMIT it becomes an Adult prey.                 #   
+# - If the time alive of an adult prey is equal to ADULT_PREY_AGE_LIMIT it becomes an old prey.              #   
+# - If the time alive of an old prey is equal to OLD_PRET_AGE_LIMIT it dies.                                 #   
+# -----------------------------------------------------------------------------------------------------------#                                                                                                                       #
+
+# Reproduction                                                                                             
+# -----------------------------------------------------------------------------------------------------------#   
+# - Young preys don't have the ability to reproduce.                                                         #   
+# - Adult preys reproduce if timeToReproduction is equal to 0 and there is at least one empty adjacent       # 
+#   cell.                                                                                                    #
+# - Old preys don't have the ability to reproduce.                                                           #   
+# -----------------------------------------------------------------------------------------------------------#  
+
+# Movement                                                                                                       
+# -----------------------------------------------------------------------------------------------------------#   
+# - Young preys move if there is at least one empty adjacent cell.                                           #
+# - Adult preys move only if they have not been able to reproduce.                                           #
+# - Old preys move if there is at least one empty adjacent cell and they have a 50% chance to not move and   #
+#   stay in the same spot.                                                                                   #                                                 
+# -----------------------------------------------------------------------------------------------------------#   
+                                                                                                                   
+# -----------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------------------------------------#
 
 class preyBehaviour(object):
 
@@ -20,7 +49,7 @@ class preyBehaviour(object):
             elif(cellStatus == OLD):
                 self.__oldBehaviour(cells, action, y, x)
 
-     # Specific behaviour
+    # Specific behaviour
     # ------------------------------------------------------------------------ 
 
     def __oldBehaviour(self, cells, action, y, x):
@@ -42,8 +71,8 @@ class preyBehaviour(object):
                 newY, newX = self.__movement(cells, action, newStep, ADULT, y, x)
                 cells[newY][newX].updateTimes()
         else:
-            cells[y][x].updateTimes()
             pygame.draw.polygon(SCREEN, GREEN_ADULT, getRectangle(y, x), 0)
+            cells[y][x].updateTimes()
 
     def __youngBehaviour(self, cells, action, y, x):
         newStep = self.__newStepSearch(cells, y, x)
@@ -51,28 +80,26 @@ class preyBehaviour(object):
             newY, newX = self.__movement(cells, action, newStep, YOUNG, y, x)
             cells[newY][newX].updateTimes()
         else:
-            cells[y][x].updateTimes()
             pygame.draw.polygon(SCREEN, GREEN_YOUNG, getRectangle(y, x), 0)
+            cells[y][x].updateTimes()
 
     # General actions
     # ------------------------------------------------------------------------
 
     def __growth(self, cells, y, x):
         cellStatus, cellTime = cells[y][x].getCellStatus(), cells[y][x].getTimeAlive()
-        if(cellStatus == YOUNG and cellTime == YOUNG_PREY_LIMIT):
+        if(cellStatus == YOUNG and cellTime == YOUNG_PREY_AGE_LIMIT):
             cells[y][x].setCellStatus(ADULT)
-            pygame.draw.polygon(SCREEN, GREEN_ADULT, getRectangle(y, x), 0)
-        elif(cellStatus == ADULT and cellTime == ADULT_PREY_LIMIT):
+        elif(cellStatus == ADULT and cellTime == ADULT_PREY_AGE_LIMIT):
             cells[y][x].setCellStatus(OLD)
-            pygame.draw.polygon(SCREEN, GREEN_OLD, getRectangle(y, x), 0) #cambiar
-        elif(cellStatus == OLD and cellTime == DIE_PREY_LIMIT):
+        elif(cellStatus == OLD and cellTime == OLD_PREY_AGE_LIMIT):
             cells[y][x] = emptyCell()
 
     def __reproduction(self, cells, action, newStep, y, x):
         newY, newX = random.choice(newStep)
         newStep.remove([newY, newX])
         cells[newY][newX] = prey()
-        cells[y][x].updateTimeToRepro(TIMEPREY)
+        cells[y][x].updateTimeToRepro(TIME_UNTIL_REPRODUCTION_PREY)
         action[y][x], action[newY][newX] = 0, 0
 
         pygame.draw.polygon(SCREEN, GREEN_ADULT, getRectangle(y, x), 0)
@@ -90,7 +117,7 @@ class preyBehaviour(object):
         elif(preyStatus == ADULT):
             pygame.draw.polygon(SCREEN, GREEN_ADULT, getRectangle(newY, newX), 0)
         elif(preyStatus == OLD):
-            pygame.draw.polygon(SCREEN, GREEN_OLD, getRectangle(newY, newX), 0) #CAMBIAR
+            pygame.draw.polygon(SCREEN, GREEN_OLD, getRectangle(newY, newX), 0) 
         
         return newY, newX
 

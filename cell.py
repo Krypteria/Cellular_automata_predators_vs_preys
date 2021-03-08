@@ -2,44 +2,44 @@ from constants import *
 
 class cell(object):
     def __init__(self, cellType, cellStatus, timeToRepro, timeAlive):
-        self._cellType = cellType
-        self._cellStatus = cellStatus
-        self._timeAlive = timeAlive
-        self._timeToRepro = timeToRepro
+        self.__cellType = cellType
+        self.__cellStatus = cellStatus
+        self.__timeAlive = timeAlive
+        self.__timeToReproduction = timeToRepro
     
     def getCellType(self):
-        return self._cellType
+        return self.__cellType
 
     def getCellStatus(self):
-        return self._cellStatus
+        return self.__cellStatus
 
     def getTimeAlive(self):
-        return self._timeAlive
+        return self.__timeAlive
     
     def getTimeToReproduction(self):
-        return self._timeToRepro
+        return self.__timeToReproduction
 
     def setCellType(self, newType):
-        self._cellType = newType
+        self.__cellType = newType
 
     def setCellStatus(self, newStatus):
-        self._cellStatus = newStatus
+        self.__cellStatus = newStatus
 
     def updateTimes(self):
-        if(self._cellStatus == ADULT):
-            self._timeToRepro -= 1
-        self._timeAlive +=1
+        if(self.__cellStatus == ADULT):
+            self.__timeToReproduction -= 1
+        self.__timeAlive +=1
 
     def updateTimeToRepro(self, newValue):
-        self._timeToRepro = newValue
+        self.__timeToReproduction = newValue
 
 class prey(cell):
-    def __init__(self, cellStatus=YOUNG, timeToRepro=TIMEPREY, timeAlive=0): 
-        cell.__init__(self, PREY, cellStatus, timeToRepro, timeAlive)
+    def __init__(self, cellStatus=YOUNG, timeToReproduction=TIME_UNTIL_REPRODUCTION_PREY, timeAlive=0): 
+        cell.__init__(self, PREY, cellStatus, timeToReproduction, timeAlive)
         
 class predator(cell):
-    def __init__(self, cellStatus=YOUNG, timeToRepro=TIMEPREDATOR, timeAlive=0):
-        cell.__init__(self, PREDATOR, cellStatus, timeToRepro, timeAlive)
+    def __init__(self, cellStatus=YOUNG, timeToReproduction=TIME_UNTIL_REPRODUCTION_PREDATOR, timeAlive=0):
+        cell.__init__(self, PREDATOR, cellStatus, timeToReproduction, timeAlive)
 
 class emptyCell(cell):
     def __init__(self):

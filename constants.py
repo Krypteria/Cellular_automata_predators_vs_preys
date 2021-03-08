@@ -45,17 +45,15 @@ NY, NX = (int) (HEIGHT / RH), (int) (WIDTH / RW)
 
 SCREEN = pygame.display.set_mode([WIDTH, HEIGHT])
 FPS = 60
+TIMESIM = 0.1
 
 # Custom colors
 # ------------------------------------------------------------------------
-GRAY = (125,125,125)
 BLACK = (0, 0, 0)
-WHITE = (255,255,255)
 
 RED_ADULT = (255,0,0) 
 RED_YOUNG = (159,0,0) 
 RED_OLD = (97,0,0)
-
 
 GREEN_YOUNG = (0,255,0)
 GREEN_ADULT = (0,159,0)
@@ -85,25 +83,23 @@ PREDATOR_PERCENTAGE = PREDATOR_VALUE / 100
 PREY_CELLS = (int) (NX * NY * PREY_PERCENTAGE)
 PREDATOR_CELLS = (int) (NX * NY * PREDATOR_PERCENTAGE)
 
-# Reproduction and growth values (this will be moved into another .py in the future when i implement the GUI)
+# Reproduction and growth values
 # ------------------------------------------------------------------------
-TIMESIM = 0.1
-
 #Reproduction
-TIMEPREY = 4
-TIMEPREDATOR = 4
+TIME_UNTIL_REPRODUCTION_PREY = 4
+TIME_UNTIL_REPRODUCTION_PREDATOR = 3
 
-PRE_REPRO_CONDITION = 3
-PRE_REPRO_RATE = 2
+PREDATOR_REPRODUCTION_CONDITION = 3
+PREDATOR_REPRODUCTION_RATE = 3
 
 #Growth
-YOUNG_PREY_LIMIT = 10
-ADULT_PREY_LIMIT = 20
-DIE_PREY_LIMIT = 40
+YOUNG_PREY_AGE_LIMIT = 10
+ADULT_PREY_AGE_LIMIT = 20
+OLD_PREY_AGE_LIMIT = 40
 
-YOUNG_PREDATOR_LIMIT = 10
-ADULT_PREDATOR_LIMIT = 30
-DIE_PREDATOR_LIMIT = 40
+YOUNG_PREDATOR_AGE_LIMIT = 10
+ADULT_PREDATOR_AGE_LIMIT = 30
+OLD_PREDATOR_AGE_LIMIT = 40
 
 # ------------------------------------------------------------------------
 # Neighbors position vectors

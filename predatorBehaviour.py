@@ -2,6 +2,42 @@ from constants import *
 from generalMethods import *
 from cell import predator, emptyCell 
 
+# -----------------------------------------------------------------------------------------------------------#
+# Rules                                                                                                      #
+# -----------------------------------------------------------------------------------------------------------#
+
+# Growth                                                                                                         
+# -----------------------------------------------------------------------------------------------------------#   
+# - If the time alive of a young predator is equal to YOUNG_PREDATOR_AGE_LIMIT it becomes an Adult predator. #   
+# - If the time alive of an adult predator is equal to ADULT_PREDATOR_AGE_LIMIT it becomes an old predator.  #   
+# - If the time alive of an old predator is equal to OLD_PREDATOR_AGE_LIMIT it dies.                         #   
+# -----------------------------------------------------------------------------------------------------------#                                                                                                                       #
+
+# Reproduction / eat                                                                                             
+# -----------------------------------------------------------------------------------------------------------#   
+# - Young predators don't have the ability to reproduce, but they can eat prey in adjacent cells by moving   #
+#   to that cell.                                                                                            #
+#                                                                                                            #   
+# - Adult predator can reproduce if timeToReproduction is equal to 0 and:                                    #
+#   - If there are PREDATOR_REPRODUCTION_CONDITION preys in the adjacent cells, then, the predator generate  #   
+#     PREDATOR_REPRODUCTION_RATE young predators in those cells.                                             #   
+#   - If the above condition is not met but there is at least one prey in the adjacent cells, then, the      #   
+#     predator generate a new young predator cell in that position.                                          # 
+#                                                                                                            # 
+# - Old predators don't have the ability to reproduce, but they can eat prey in adjacent cells by moving     #
+#   to that cell.                                                                                            #        
+# -----------------------------------------------------------------------------------------------------------#  
+
+# Movement                                                                                                       
+# -----------------------------------------------------------------------------------------------------------#   
+# - The predators only move when they cannot eat a prey cell or reproduce and have and empty cell in         #
+#   adjacent cells.                                                                                          #   
+# - Old ones have a 50% chance to not move and stay in the same spot.                                        #   
+# -----------------------------------------------------------------------------------------------------------#   
+                                                                                                                   
+# -----------------------------------------------------------------------------------------------------------#
+# -----------------------------------------------------------------------------------------------------------#
+
 class predatorBehaviour(object):
 
     # Public methods
@@ -63,13 +99,11 @@ class predatorBehaviour(object):
 
     def __growth(self, cells, y, x):
         cellStatus, cellTime = cells[y][x].getCellStatus(), cells[y][x].getTimeAlive()
-        if(cellStatus == YOUNG and cellTime == YOUNG_PREDATOR_LIMIT):
+        if(cellStatus == YOUNG and cellTime == YOUNG_PREDATOR_AGE_LIMIT):
             cells[y][x].setCellStatus(ADULT)
-            pygame.draw.polygon(SCREEN, RED_ADULT, getRectangle(y, x), 0)
-        elif(cellStatus == ADULT and cellTime == ADULT_PREDATOR_LIMIT):
+        elif(cellStatus == ADULT and cellTime == ADULT_PREDATOR_AGE_LIMIT):
              cells[y][x].setCellStatus(OLD)
-             pygame.draw.polygon(SCREEN, RED_OLD, getRectangle(y, x), 0)
-        elif((cellStatus == OLD) and cellTime == DIE_PREDATOR_LIMIT):
+        elif((cellStatus == OLD) and cellTime == OLD_PREDATOR_AGE_LIMIT):
             cells[y][x] = emptyCell()
  
     def __eat(self, cells, action, preyCells, predatorStatus, y, x):
@@ -86,16 +120,15 @@ class predatorBehaviour(object):
         return newY, newX
         
     def __reproduction(self, cells, action, preyCells, y, x):
-        k = PRE_REPRO_CONDITION if len(preyCells) >= PRE_REPRO_CONDITION else 1
+        k = PREDATOR_REPRODUCTION_RATE if len(preyCells) >= PREDATOR_REPRODUCTION_CONDITION else 1
         for i in range(0, k):
             newY, newX = random.choice(preyCells)
             preyCells.remove([newY, newX])
             cells[newY][newX] = predator()
             action[newY][newX] = 0
             pygame.draw.polygon(SCREEN, RED_YOUNG, getRectangle(newY, newX))
-        
-        cells[y][x].updateTimeToRepro(TIMEPREDATOR)
         action[y][x] = 0
+        cells[y][x].updateTimeToRepro(TIME_UNTIL_REPRODUCTION_PREDATOR)
         pygame.draw.polygon(SCREEN, RED_ADULT, getRectangle(y, x))
 
     def __movement(self, cells, action, newStep, predatorStatus, y, x):
@@ -119,7 +152,6 @@ class predatorBehaviour(object):
         for k in range (0, NEIGHBORS):
             newX = (x + NX_COORD[k]) % NX
             newY = (y + NY_COORD[k]) % NY
-
             cellType = cells[newY][newX].getCellType() 
             if(cellType == NONE):
                 newStep.append([newY, newX])

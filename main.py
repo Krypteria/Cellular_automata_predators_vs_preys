@@ -34,26 +34,21 @@ def runSimulation(cells, action):
             action = np.ones([NY, NX], dtype="int")
 
 def initializeSimulation(cells):
-    #TODO: generar elmentos totalmente diferentes, hay veces que se pisan unos a otros
-    preyCount, predatorCount = PREY_CELLS, PREDATOR_CELLS
-    for i in range(0, PREY_CELLS + PREDATOR_CELLS):
-        y = np.random.randint(1, NY)
-        x = np.random.randint(1, NX)
-        rectangle = getRectangle(y, x)
-        if(predatorCount and cells[y][x].getCellType() == NONE):
+    for i in range(PREDATOR_CELLS):
+        y, x = np.random.randint(1, NY), np.random.randint(1, NX)
+        if(cells[y][x].getCellType() == NONE):
             cells[y][x] = predator()
-            pygame.draw.polygon(SCREEN, RED_YOUNG, rectangle, 0)
-            predatorCount -= 1
-        elif(preyCount and cells[y][x].getCellType() == NONE):
+            pygame.draw.polygon(SCREEN, RED_YOUNG, getRectangle(y, x), 0)
+    for i in range(PREY_CELLS):
+        y, x = np.random.randint(1, NY), np.random.randint(1, NX)
+        if(cells[y][x].getCellType() == NONE):
             cells[y][x] = prey()
-            pygame.draw.polygon(SCREEN, GREEN_YOUNG, rectangle, 0)
-            preyCount -= 1
-
-    print(predatorCount, " ", preyCount)
+            pygame.draw.polygon(SCREEN, GREEN_YOUNG, getRectangle(y, x), 0)
     pygame.display.flip()
 
+
 def main():
-    pygame.display.set_caption("Cellular automata")
+    pygame.display.set_caption("Cellular automata: prey vs predator simulation")
     clock = pygame.time.Clock()
     clock.tick(FPS)
 
