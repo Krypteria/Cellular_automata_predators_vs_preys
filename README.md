@@ -1,4 +1,4 @@
-# Cellular_autómata_predators_vs_preys
+# Cellular_automata_predators_vs_preys
 
 ![gif](https://user-images.githubusercontent.com/55555187/110488475-caec7d00-80ee-11eb-9d94-7bd2e7fc2e14.gif)
 
