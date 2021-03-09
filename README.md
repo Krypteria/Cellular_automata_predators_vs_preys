@@ -34,7 +34,7 @@ El nombre de autómata celular se debe a su gran parecido con el crecimiento cel
 <img align="left" width="403" height="196" src="https://user-images.githubusercontent.com/55555187/110493884-5405b300-80f3-11eb-97a2-742477eb24f2.png">
 La simulación cuenta con 6 autómatas diferentes, estos se agrupan en 2 grandes tipos (depredadores o presas) y dentro de cada tipo en 3 etapas diferentes (joven, adulto o viejo). 
 
-<br><br><br>
+<br><br><br><br>
 
 --- 
 
