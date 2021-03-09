@@ -31,10 +31,7 @@ El nombre de autómata celular se debe a su gran parecido con el crecimiento cel
 ## Tipos de autómatas 
 
 <img align="left" width="403" height="196" src="https://user-images.githubusercontent.com/55555187/110493884-5405b300-80f3-11eb-97a2-742477eb24f2.png">
-La simulación cuenta con 6 autómatas diferentes, estos se agrupan en 2 grandes tipos (depredadores o presas) y dentro de cada tipo en 3 etapas diferentes (joven, adulto o viejo). <br>
-Dichos autómatas siguen una serie de reglas de comportamiento que se explicarán posteriormente y tienen un color distintivo asignado para facilitar el seguimiento durante la simulación como se puede apreciar en la tabla.
-
-<br>
+La simulación cuenta con 6 autómatas diferentes, estos se agrupan en 2 grandes tipos (depredadores o presas) y dentro de cada tipo en 3 etapas diferentes (joven, adulto o viejo). <br><br>
 
 --- 
 
@@ -114,3 +111,6 @@ El comportamiento de cada autómata vienen definido por una serie de reglas que 
 La aplicación cuenta con una funcionalidad para pausar y despausar la simulación pulsando cualquier tecla del teclado.
 
 ## GIFS 
+
+![Gif2](https://user-images.githubusercontent.com/55555187/110504831-d6937000-80fd-11eb-87d6-0c5affd8e1c1.gif)
+![gif3](https://user-images.githubusercontent.com/55555187/110504833-d72c0680-80fd-11eb-8e09-6d3e2662f863.gif)
