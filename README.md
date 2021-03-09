@@ -5,8 +5,9 @@
 ## Como descargarlo y ejecutarlo
 ### Opción 1 (recomendada)
 1. Descargar el ejecutable <b>*Prey_vs_predator.exe*</b> de la última release.
-2. Lanzar el ejecutable.
-(Debido al caracter de Python es probable que windows defender lo bloquee, dar a ejecutar de todas formas)
+2. Lanzar el ejecutable.(Es posible que windows lo bloquee pero es un falso positivo al haber usado pyInstaller)<br>
+
+SHA-256: 1D0A9FE012207BDE387A329A8478558A9DAAFD1695168F5DAB6ACFEC57E19DBD <br>
 ### Opción 2
 1. Descargar el código fuente en zip de la última release.
 2. Descomprimir el zip 
