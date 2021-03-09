@@ -6,6 +6,7 @@
 ### Opción 1 (recomendada)
 1. Descargar el ejecutable <b>*Prey_vs_predator.exe*</b> de la última release.
 2. Lanzar el ejecutable.
+(Debido al caracter de Python es probable que windows defender lo bloquee, dar a ejecutar de todas formas)
 ### Opción 2
 1. Descargar el código fuente en zip de la última release.
 2. Descomprimir el zip 
