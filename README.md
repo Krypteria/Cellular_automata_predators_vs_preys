@@ -112,7 +112,8 @@ El comportamiento de cada autómata vienen definido por una serie de reglas que 
 </details>
 
 ## Funcionalidades extra
-La aplicación cuenta con una funcionalidad para pausar y despausar la simulación pulsando cualquier tecla del teclado.
+- La aplicación permite reiniciar la simulación pulsando la tecla R.
+- La aplicación permite pausar la simulación pulsando cualquier tecla menos la R.
 
 ## GIFS 
 
