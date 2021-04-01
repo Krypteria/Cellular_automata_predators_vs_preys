@@ -1,6 +1,8 @@
-from cell import *
-from preyBehaviour import *
-from predatorBehaviour import *
+from constants import *
+from generalMethods import getRectangle
+from cell import predator, prey, emptyCell
+from preyBehaviour import preyBehaviour
+from predatorBehaviour import predatorBehaviour
 
 # ------------------------------------------------------------------------
 # Simulation management methods
@@ -17,7 +19,12 @@ def runSimulation(cells, action):
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                paused = not paused
+                if(event.key is not pygame.K_r):
+                    paused = not paused
+                else:
+                    cells = initializeSimulation()
+                    if paused == True:
+                        paused = False
         
         if(not paused):
             SCREEN.fill(BLACK)
@@ -33,7 +40,10 @@ def runSimulation(cells, action):
             pygame.display.flip()   
             action = np.ones([NY, NX], dtype="int")
 
-def initializeSimulation(cells):
+def initializeSimulation():
+    row = [emptyCell() for i in range(NX)]
+    cells = [list(row) for i in range(NY)]
+    
     for i in range(PREDATOR_CELLS):
         y, x = np.random.randint(1, NY), np.random.randint(1, NX)
         if(cells[y][x].getCellType() == NONE):
@@ -46,18 +56,17 @@ def initializeSimulation(cells):
             pygame.draw.polygon(SCREEN, GREEN_YOUNG, getRectangle(y, x), 0)
     pygame.display.flip()
 
+    return cells
+
 
 def main():
-    pygame.display.set_caption("Cellular automata: prey vs predator simulation")
+    pygame.display.set_caption("Prey vs predator simulation")
     clock = pygame.time.Clock()
     clock.tick(FPS)
 
-    row = [emptyCell() for i in range(NX)]
-    cells = [list(row) for i in range(NY)]
-
     action = np.ones([NY, NX], dtype="int")
     
-    initializeSimulation(cells)
+    cells = initializeSimulation()
     runSimulation(cells, action)
 
                 

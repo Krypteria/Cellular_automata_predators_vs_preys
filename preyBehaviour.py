@@ -1,5 +1,5 @@
 from constants import *
-from generalMethods import *
+from generalMethods import getRectangle
 from cell import prey, emptyCell
 
 # -----------------------------------------------------------------------------------------------------------#
